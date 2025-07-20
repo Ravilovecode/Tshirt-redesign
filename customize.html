@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customize Your T-shirt</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f7fa;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 900px;
+            margin: 40px auto;
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+            padding: 2rem;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 2rem;
+        }
+        .customize-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .tshirt-canvas {
+            position: relative;
+            width: 350px;
+            height: 400px;
+            background: #eaeaea;
+            border-radius: 18px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+            margin-bottom: 2rem;
+            overflow: hidden;
+            touch-action: none;
+        }
+        .tshirt-base {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            pointer-events: none;
+        }
+        .draggable {
+            position: absolute;
+            cursor: move;
+            user-select: none;
+            word-break: break-word;
+            min-width: 40px;
+            min-height: 32px;
+        }
+        .resize-handle {
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            background: #fff;
+            border: 2px solid #3498db;
+            border-radius: 50%;
+            right: -8px;
+            bottom: -8px;
+            cursor: se-resize;
+            z-index: 2;
+        }
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+        .controls input[type="text"] {
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            font-size: 1rem;
+        }
+        .controls input[type="file"] {
+            font-size: 1rem;
+        }
+        .controls button {
+            padding: 0.5rem 1.2rem;
+            border: none;
+            border-radius: 6px;
+            background: #3498db;
+            color: #fff;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .controls button:hover {
+            background: #217dbb;
+        }
+        .toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+        }
+        .toolbar input[type="range"] {
+            width: 100px;
+        }
+        .toolbar label {
+            font-size: 0.95rem;
+            color: #333;
+        }
+        .toolbar select, .toolbar input[type="color"] {
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+        .toolbar button {
+            background: #e74c3c;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 0.3rem 0.8rem;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+        .toolbar button:hover {
+            background: #c0392b;
+        }
+        .draggable-text {
+            font-size: 28px;
+            color: #222;
+            font-weight: bold;
+            text-shadow: 1px 1px 4px #fff, 0 2px 8px #0002;
+            padding: 2px 8px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 4px;
+            min-width: 40px;
+            min-height: 32px;
+        }
+        @media (max-width: 600px) {
+            .container {
+                padding: 0.5rem;
+                margin: 0;
+                border-radius: 0;
+                box-shadow: none;
+            }
+            .tshirt-canvas {
+                width: 98vw;
+                height: 60vw;
+                min-width: 220px;
+                min-height: 250px;
+                max-width: 99vw;
+                max-height: 80vw;
+            }
+            .controls, .toolbar {
+                flex-direction: column;
+                gap: 0.7rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo-link">
+                <img src="boy-t2.png" alt="Logo" class="logo-img" style="height:38px;vertical-align:middle;">
+            </a>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="customize.html" class="active">Customize</a></li>
+                <li><a href="#products">Products</a></li>
+                <li><a href="#account">Account</a></li>
+            </ul>
+        </div>
+    </nav>
+    <div class="container">
+        <h1>Customize Your T-shirt</h1>
+        <div class="controls">
+            <input type="file" id="imgUpload" accept="image/*">
+            <input type="text" id="customText" placeholder="Enter your text">
+            <button onclick="addText()">Add Text</button>
+        </div>
+        <div class="toolbar" id="toolbar" style="display:none;">
+            <label>Font Size: <input type="range" id="fontSizeSlider" min="12" max="80" value="28"></label>
+            <label>Color: <input type="color" id="fontColorPicker" value="#222222"></label>
+            <label>Font: 
+                <select id="fontFamilySelect">
+                    <!-- Highly cursive fonts -->
+                    <option value="Brush Script MT, cursive">Brush Script MT (Highly Cursive)</option>
+                    <option value="Dancing Script, cursive">Dancing Script (Highly Cursive)</option>
+                    <option value="Pacifico, cursive">Pacifico (Highly Cursive)</option>
+                    <option value="Great Vibes, cursive">Great Vibes (Highly Cursive)</option>
+                    <option value="Satisfy, cursive">Satisfy (Highly Cursive)</option>
+                    <!-- Medium cursive fonts -->
+                    <option value="Allura, cursive">Allura (Medium Cursive)</option>
+                    <option value="Lobster, cursive">Lobster (Medium Cursive)</option>
+                    <option value="Kaushan Script, cursive">Kaushan Script (Medium Cursive)</option>
+                    <option value="Courgette, cursive">Courgette (Medium Cursive)</option>
+                    <option value="Comic Sans MS, cursive">Comic Sans (Low Cursive)</option>
+                    <!-- Standard fonts -->
+                    <option value="Arial">Arial</option>
+                    <option value="Roboto">Roboto</option>
+                    <option value="Impact">Impact</option>
+                    <option value="Georgia">Georgia</option>
+                    <option value="Courier New">Courier New</option>
+                    <option value="Times New Roman">Times New Roman</option>
+                    <option value="Verdana">Verdana</option>
+                    <option value="Trebuchet MS">Trebuchet MS</option>
+                    <option value="Garamond">Garamond</option>
+                    <option value="Palatino">Palatino</option>
+                    <option value="Tahoma">Tahoma</option>
+                    <option value="Lucida Console">Lucida Console</option>
+                    <option value="Monaco">Monaco</option>
+                </select>
+            </label>
+            <button id="bringFrontBtn">Bring to Front</button>
+            <button id="deleteBtn">Delete</button>
+            <button id="saveBtn" style="background:#27ae60;">Save</button>
+        </div>
+        <div class="customize-area">
+            <div class="tshirt-canvas" id="tshirtCanvas">
+                <img src="tshirt.jpg" alt="Plain T-shirt" class="tshirt-base">
+                <!-- Draggable elements will be added here -->
+            </div>
+        </div>
+    </div>
+</style>
+<style>
+    .navbar {
+        width: 100%;
+        background: linear-gradient(90deg, #e0eafc 0%, #cfdef3 100%);
+        box-shadow: none;
+        padding: 0;
+        margin: 0;
+        border-bottom: 1px solid #e0eafc;
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+    }
+    .nav-container {
+        max-width: 1100px;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.5rem 1.5rem;
+    }
+    .logo-link {
+        display: flex;
+        align-items: center;
+        text-decoration: none;
+    }
+    .logo-img {
+        height: 38px;
+        width: auto;
+        margin-right: 10px;
+    }
+    .nav-links {
+        list-style: none;
+        display: flex;
+        gap: 1.5rem;
+        margin: 0;
+        padding: 0;
+    }
+    .nav-links li {
+        display: inline-block;
+    }
+    .nav-links a {
+        text-decoration: none;
+        color: #2c3e50;
+        font-size: 1.1rem;
+        font-weight: 600;
+        padding: 0.3rem 0.7rem;
+        border-radius: 6px;
+        transition: background 0.2s, color 0.2s;
+    }
+    .nav-links a.active, .nav-links a:hover {
+        background: #3498db;
+        color: #fff;
+    }
+    @media (max-width: 600px) {
+        .nav-container {
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 0.5rem 0.5rem;
+        }
+        .nav-links {
+            gap: 0.7rem;
+        }
+        .logo-img {
+            height: 32px;
+        }
+    }
+</style>
+    <script>
+    // Mobile-friendly, improved text, toolbar, pinch-to-zoom, and more features
+    let currentDrag = null, offsetX = 0, offsetY = 0, currentResize = null, startW = 0, startH = 0, startX = 0, startY = 0;
+    let selectedText = null, lastTouchDist = null, currentPinchImg = null, lastImgTouchDist = null;
+    const canvas = document.getElementById('tshirtCanvas');
+    const toolbar = document.getElementById('toolbar');
+    const fontSizeSlider = document.getElementById('fontSizeSlider');
+    const fontColorPicker = document.getElementById('fontColorPicker');
+    const fontFamilySelect = document.getElementById('fontFamilySelect');
+    const bringFrontBtn = document.getElementById('bringFrontBtn');
+    const deleteBtn = document.getElementById('deleteBtn');
+
+    // Image upload
+    document.getElementById('imgUpload').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+            addImage(evt.target.result);
+        };
+        reader.readAsDataURL(file);
+    });
+
+    function addImage(src) {
+        const img = document.createElement('img');
+        img.src = src;
+        img.className = 'draggable';
+        img.style.left = '100px';
+        img.style.top = '120px';
+        img.style.width = '120px';
+        img.style.height = '120px';
+        img.style.zIndex = 10;
+        makeDraggableResizable(img);
+        canvas.appendChild(img);
+        deselectText();
+    }
+
+    function addText() {
+        const val = document.getElementById('customText').value.trim();
+        if (!val) return;
+        const div = document.createElement('div');
+        div.className = 'draggable draggable-text';
+        div.contentEditable = true;
+        div.innerText = val;
+        div.style.left = '80px';
+        div.style.top = '60px';
+        div.style.fontSize = '28px';
+        div.style.zIndex = 10;
+        div.style.fontFamily = 'Arial';
+        div.style.color = '#222';
+        div.setAttribute('tabindex', 0);
+        makeDraggableResizable(div, true);
+        canvas.appendChild(div);
+        document.getElementById('customText').value = '';
+        selectText(div, true); // show toolbar immediately
+    }
+
+    function makeDraggableResizable(el, isText) {
+        // Drag
+        el.addEventListener('mousedown', function(e) {
+            if (e.target.classList.contains('resize-handle')) return;
+            currentDrag = el;
+            offsetX = e.offsetX;
+            offsetY = e.offsetY;
+            el.style.zIndex = 20;
+            if (isText) selectText(el);
+        });
+        el.addEventListener('touchstart', function(e) {
+            if (e.target.classList.contains('resize-handle')) return;
+            currentDrag = el;
+            let touch = e.touches[0];
+            offsetX = touch.clientX - el.getBoundingClientRect().left;
+            offsetY = touch.clientY - el.getBoundingClientRect().top;
+            el.style.zIndex = 20;
+            if (isText) selectText(el);
+        });
+        // Resize
+        const handle = document.createElement('div');
+        handle.className = 'resize-handle';
+        el.appendChild(handle);
+        handle.addEventListener('mousedown', function(e) {
+            e.stopPropagation();
+            currentResize = el;
+            startW = el.offsetWidth;
+            startH = el.offsetHeight;
+            startX = e.clientX;
+            startY = e.clientY;
+        });
+        handle.addEventListener('touchstart', function(e) {
+            e.stopPropagation();
+            currentResize = el;
+            let touch = e.touches[0];
+            startW = el.offsetWidth;
+            startH = el.offsetHeight;
+            startX = touch.clientX;
+            startY = touch.clientY;
+        });
+        // Mouse move for resizing (images and text)
+        document.addEventListener('mousemove', function(e) {
+            if (currentResize === el) {
+                let dx = e.clientX - startX;
+                let dy = e.clientY - startY;
+                let newW = Math.max(30, startW + dx);
+                let newH = Math.max(30, startH + dy);
+                el.style.width = newW + 'px';
+                el.style.height = newH + 'px';
+            }
+        });
+        document.addEventListener('mouseup', function() {
+            if (currentResize === el) currentResize = null;
+        });
+        // Select text on click
+        if (isText) {
+            el.addEventListener('click', function(e) {
+                selectText(el);
+                e.stopPropagation();
+            });
+            el.addEventListener('touchend', function(e) {
+                selectText(el);
+                e.stopPropagation();
+            });
+        }
+    }
+
+    // Desktop drag/resize
+    document.addEventListener('mousemove', function(e) {
+        if (currentDrag) {
+            let x = e.clientX - canvas.getBoundingClientRect().left - offsetX;
+            let y = e.clientY - canvas.getBoundingClientRect().top - offsetY;
+            x = Math.max(0, Math.min(x, canvas.offsetWidth - currentDrag.offsetWidth));
+            y = Math.max(0, Math.min(y, canvas.offsetHeight - currentDrag.offsetHeight));
+            currentDrag.style.left = x + 'px';
+            currentDrag.style.top = y + 'px';
+        }
+        if (currentResize) {
+            let dx = e.clientX - startX;
+            let dy = e.clientY - startY;
+            let newW = Math.max(30, startW + dx);
+            let newH = Math.max(30, startH + dy);
+            currentResize.style.width = newW + 'px';
+            currentResize.style.height = newH + 'px';
+        }
+    });
+    document.addEventListener('mouseup', function() {
+        if (currentDrag) currentDrag.style.zIndex = 10;
+        currentDrag = null;
+        currentResize = null;
+    });
+
+    // Touch drag/resize/pinch
+    canvas.addEventListener('touchmove', function(e) {
+        if (currentDrag && e.touches.length === 1) {
+            let touch = e.touches[0];
+            let x = touch.clientX - canvas.getBoundingClientRect().left - offsetX;
+            let y = touch.clientY - canvas.getBoundingClientRect().top - offsetY;
+            x = Math.max(0, Math.min(x, canvas.offsetWidth - currentDrag.offsetWidth));
+            y = Math.max(0, Math.min(y, canvas.offsetHeight - currentDrag.offsetHeight));
+            currentDrag.style.left = x + 'px';
+            currentDrag.style.top = y + 'px';
+        }
+        // Pinch to zoom for text
+        if (selectedText && e.touches.length === 2) {
+            let t1 = e.touches[0], t2 = e.touches[1];
+            let dist = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
+            if (lastTouchDist !== null) {
+                let scale = dist / lastTouchDist;
+                let currentSize = parseFloat(selectedText.style.fontSize || 28);
+                let newSize = Math.max(12, Math.min(80, currentSize * scale));
+                selectedText.style.fontSize = newSize + 'px';
+                fontSizeSlider.value = newSize;
+            }
+            lastTouchDist = dist;
+        }
+        // Pinch to zoom for images
+        if (currentPinchImg && e.touches.length === 2) {
+            let t1 = e.touches[0], t2 = e.touches[1];
+            let dist = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
+            if (lastImgTouchDist !== null) {
+                let scale = dist / lastImgTouchDist;
+                let w = currentPinchImg.offsetWidth * scale;
+                let h = currentPinchImg.offsetHeight * scale;
+                w = Math.max(30, Math.min(canvas.offsetWidth, w));
+                h = Math.max(30, Math.min(canvas.offsetHeight, h));
+                currentPinchImg.style.width = w + 'px';
+                currentPinchImg.style.height = h + 'px';
+            }
+            lastImgTouchDist = dist;
+        }
+    }, {passive: false});
+    canvas.addEventListener('touchend', function(e) {
+        currentDrag = null;
+        currentResize = null;
+        lastTouchDist = null;
+        currentPinchImg = null;
+        lastImgTouchDist = null;
+    });
+
+    // Detect pinch start for images
+    canvas.addEventListener('touchstart', function(e) {
+        if (e.touches.length === 2) {
+            // Find topmost image under the first touch
+            let touch = e.touches[0];
+            let x = touch.clientX - canvas.getBoundingClientRect().left;
+            let y = touch.clientY - canvas.getBoundingClientRect().top;
+            let elements = document.elementsFromPoint(touch.clientX, touch.clientY);
+            for (let el of elements) {
+                if (el.classList && el.classList.contains('draggable') && el.tagName === 'IMG') {
+                    currentPinchImg = el;
+                    break;
+                }
+            }
+            if (currentPinchImg) {
+                let t1 = e.touches[0], t2 = e.touches[1];
+                lastImgTouchDist = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
+            }
+        }
+    });
+
+    // Toolbar logic
+    function selectText(el, forceShow) {
+        selectedText = el;
+        toolbar.style.display = 'flex';
+        fontSizeSlider.value = parseFloat(el.style.fontSize) || 28;
+        fontColorPicker.value = rgb2hex(el.style.color || '#222');
+        fontFamilySelect.value = el.style.fontFamily || 'Arial';
+        // Focus for editing
+        if (forceShow) setTimeout(() => el.focus(), 100);
+    }
+    function deselectText() {
+        selectedText = null;
+        // Only hide toolbar if Save is clicked
+        // toolbar.style.display = 'none';
+    }
+    // Only hide toolbar on Save
+    document.getElementById('saveBtn').addEventListener('click', function() {
+        toolbar.style.display = 'none';
+        selectedText = null;
+    });
+    // Do not hide toolbar on outside click
+    fontSizeSlider.addEventListener('input', function() {
+        if (selectedText) {
+            selectedText.style.fontSize = fontSizeSlider.value + 'px';
+        }
+    });
+    fontColorPicker.addEventListener('input', function() {
+        if (selectedText) {
+            selectedText.style.color = fontColorPicker.value;
+        }
+    });
+    fontFamilySelect.addEventListener('change', function() {
+        if (selectedText) {
+            selectedText.style.fontFamily = fontFamilySelect.value;
+        }
+    });
+
+    // Optionally load Google Fonts for some cursive fonts if not present
+    const googleFonts = [
+        'Dancing+Script', 'Pacifico', 'Great+Vibes', 'Satisfy', 'Allura', 'Lobster', 'Kaushan+Script', 'Courgette'
+    ];
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = 'https://fonts.googleapis.com/css?family=' + googleFonts.join('|') + '&display=swap';
+    document.head.appendChild(link);
+    bringFrontBtn.addEventListener('click', function() {
+        if (selectedText) selectedText.style.zIndex = 100 + Math.floor(Math.random()*100);
+    });
+    deleteBtn.addEventListener('click', function() {
+        if (selectedText) {
+            selectedText.remove();
+            deselectText();
+        }
+    });
+
+    // Paste text support (Ctrl+V or long-press paste)
+    document.addEventListener('paste', function(e) {
+        if (selectedText && document.activeElement === selectedText) {
+            let paste = (e.clipboardData || window.clipboardData).getData('text');
+            document.execCommand('insertText', false, paste);
+            e.preventDefault();
+        }
+    });
+
+    // Utility: convert rgb to hex
+    function rgb2hex(rgb) {
+        if (!rgb) return '#222222';
+        if (rgb[0] === '#') return rgb;
+        let res = rgb.match(/\d+/g);
+        if (!res) return '#222222';
+        return '#' + res.slice(0,3).map(x=>('0'+parseInt(x).toString(16)).slice(-2)).join('');
+    }
+    </script>
+</body>
+</html>
