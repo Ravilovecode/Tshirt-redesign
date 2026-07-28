@@ -158,6 +158,15 @@
             }
         }
     </style>
+<style>
+    /* FIXED: Added CSS Hardware Acceleration & Smooth 3D Rotation for Tshirt Canvas */
+    .tshirt-canvas, #tshirt-container, img {
+        transform-style: preserve-3d;
+        will-change: transform;
+        transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+        touch-action: none;
+    }
+</style>
 </head>
 <body>
     <nav class="navbar">
@@ -585,3 +594,4 @@
     </script>
 </body>
 </html>
+
